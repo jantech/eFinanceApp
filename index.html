@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>eFinance</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Loading Bootstrap -->
+    <link href="assets/css/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Loading Flat UI -->
+    <link href="assets/css/flat-ui.min.css" rel="stylesheet">
+    <link href="assets/css/custom_style.css" rel="stylesheet">
+
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements. All other JS at the end of file. -->
+    <!--[if lt IE 9]>
+      <script src="assets/js/vendor/html5shiv.js"></script>
+      <script src="assets/js/vendor/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+           
+    <center><h3>eFinance</h3></center>
+
+    <div class="container" id="centerDiv">
+        
+        <div class="login-form">
+          <div class="form-group">
+            <input type="text" class="form-control login-field" value="" placeholder="Username" id="uname" />
+            <label class="login-field-icon fui-user" for="uname"></label>
+          </div>
+
+          <div class="form-group">
+            <input type="password" class="form-control login-field" value="" placeholder="Password" id="pwd" />
+            <label class="login-field-icon fui-lock" for="pwd"></label>
+          </div>
+
+          <input type="button" class="btn btn-primary btn-lg btn-block" value="Log in" name="btn_login" id="btn_login" />
+          <!-- <a class="login-link" href="#">Lost your password?</a> -->
+          <div class="form-group">
+            <label class="checkbox" for="rmb">
+              <input type="checkbox" checked="checked" id="rmb" data-toggle="checkbox" >Remember Password
+            </label>
+          </div>
+
+          <a class="btn btn-success btn-lg btn-block" href="sync.html" name="btn_server_sync" id="btn_server_sync">Server Sync</a>
+
+        </div>
+
+    </div>
+    <!-- /.container -->
+
+    <!-- jQuery (necessary for Flat UI's JavaScript plugins) -->
+    <script src="assets/js/vendor/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="assets/js/vendor/video.js"></script>
+    <script src="assets/js/flat-ui.min.js"></script>
+    <script src="assets/js/efinance_app.js"></script>
+
+    <script type="text/javascript">
+
+      $(document).ready(function(){
+
+          $("#centerDiv").center();
+
+          // Checkboxes and Radio buttons
+          $('[data-toggle="checkbox"]').radiocheck();
+
+          $(document).on("click","#btn_login", function(){
+
+            var un=request_get_js($("#uname").val());
+            var pwd=request_get_js($("#pwd").val());
+            
+            if(un!="" && pwd!="")
+            {
+
+              var login_details = { un: un, pwd: pwd };
+
+              if($("#rmb").prop("checked") == true){
+                  efDB.webdb.rememberLocalDB(login_details);
+              }else{
+                //deleteRememberLocalDB();
+              }
+
+            }else{
+              alert("Invalid username or password!");
+            }
+
+          });
+      });
+
+    </script>
+
+  </body>
+</html>
