@@ -74,6 +74,11 @@
                             <div class="caption">
                                 <strong>Scanned result</strong><br>
                                 <p id="scanned-QR"></p>
+                                <input type="hidden" name="scanned-QR-url" id="scanned-QR-url">
+                  
+                  <input type="button" name="btn_proceed_s2c" id="btn_proceed_s2c" value="Proceed Server2Client Sync" class="btn btn-success btn-lg btn-block" /> 
+                  <input type="button" name="btn_proceed_c2s" id="btn_proceed_c2s" value="Proceed Client2Server Sync" class="btn btn-success btn-lg btn-block" /> 
+
                             </div>
                         </div>
                     </div>
@@ -106,6 +111,25 @@
 
           // Checkboxes and Radio buttons
           $('[data-toggle="checkbox"]').radiocheck();
+
+          $('#btn_proceed_s2c').prop('disabled', true);
+          $('#btn_proceed_c2s').prop('disabled', true);
+
+          $(document).on("click", "#btn_proceed_s2c", function(){
+
+            var scanned_QR_url = $("#scanned-QR-url").val()+"s2c.php";
+
+            alert("scanned_QR_url : "+scanned_QR_url);
+
+          });
+
+          $(document).on("click", "#btn_proceed_c2s", function(){
+
+            var scanned_QR_url = $("#scanned-QR-url").val()+"c2s.php";
+
+            alert("scanned_QR_url : "+scanned_QR_url);
+
+          });
 
       });
 
