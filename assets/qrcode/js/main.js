@@ -33,7 +33,15 @@
 				autoBrightnessValue: 120,
 				resultFunction: function(text, imgSrc) {
 					si.attr('src', imgSrc);
-					sQ.text(text);
+					//sQ.text(text);
+					sQ.text("Done");
+
+					$("#scanned-QR-url").val(text);
+					//$("#btn_proceed").click();
+
+					$('#btn_proceed_s2c').prop('disabled', false);
+					$('#btn_proceed_c2s').prop('disabled', false);
+
 					sl.fadeOut(150, function() {
 						sl.fadeIn(150);
 					});
