@@ -39,7 +39,7 @@
           <!-- <a class="login-link" href="#">Lost your password?</a> -->
           <div class="form-group">
             <label class="checkbox" for="rmb">
-              <input type="checkbox" checked="checked" id="rmb" data-toggle="checkbox" >Remember Password
+              <input type="checkbox" checked="checked" id="rmb" data-toggle="checkbox"> Remember Password
             </label>
           </div>
 
@@ -61,6 +61,8 @@
 
       $(document).ready(function(){
 
+          efDB.webdb.getRememberedUserInfoFromLocalDB();
+
           $("#centerDiv").center();
 
           // Checkboxes and Radio buttons
@@ -71,19 +73,27 @@
             var un=request_get_js($("#uname").val());
             var pwd=request_get_js($("#pwd").val());
             
+            console.log(curUserDetails);
+
             if(un!="" && pwd!="")
             {
 
               var login_details = { un: un, pwd: pwd };
-
-              if($("#rmb").prop("checked") == true){
-                  efDB.webdb.rememberLocalDB(login_details);
+              
+              if(curUserDetails[0].username==un && curUserDetails[0].password==pwd)
+              {
+                if($("#rmb").prop("checked") == true){
+                    efDB.webdb.rememberLocalDB(login_details);
+                }else{
+                  //deleteRememberLocalDB();
+                }
+                window.location.href="dashboard.html";
               }else{
-                //deleteRememberLocalDB();
+                alert("Invalid Username or Password!!");
               }
 
             }else{
-              alert("Invalid username or password!");
+              alert("Please fill username or password!");
             }
 
           });

@@ -2,6 +2,10 @@
 	cursor: pointer;
 }
 
+.cursor{
+	cursor: pointer;
+}
+
 .scanner-laser{
     position: absolute;
     margin: 40px;

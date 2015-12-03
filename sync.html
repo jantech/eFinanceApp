@@ -112,22 +112,45 @@
           // Checkboxes and Radio buttons
           $('[data-toggle="checkbox"]').radiocheck();
 
-          $('#btn_proceed_s2c').prop('disabled', true);
-          $('#btn_proceed_c2s').prop('disabled', true);
+          //$('#btn_proceed_s2c').prop('disabled', true);
+          //$('#btn_proceed_c2s').prop('disabled', true);
 
           $(document).on("click", "#btn_proceed_s2c", function(){
 
-            var scanned_QR_url = $("#scanned-QR-url").val()+"s2c.php";
+            var http = location.protocol;
+            var slashes = http.concat("//");
+            var host = slashes.concat(window.location.hostname);
 
-            alert("scanned_QR_url : "+scanned_QR_url);
+            var newurl = host+"/eFinance/ws/s2c.php";
+
+            var data = { type: "sync", lastsync: "2015-12-02 17:40:01" };
+
+            $.ajax({
+                crossDomain: true,
+                type: "POST",
+                contentType: "application/json; charset=utf-8",
+                async:false,
+                url: newurl,
+                data: data,
+                dataType: "jsonp",                
+                jsonpCallback: "fnServer2ClientResult"
+            });
+
+            //callAjax(data);
+            
+            //var scanned_QR_url = $("#scanned-QR-url").val()+"s2c.php";
+            //alert("scanned_QR_url : "+scanned_QR_url);
 
           });
 
           $(document).on("click", "#btn_proceed_c2s", function(){
 
-            var scanned_QR_url = $("#scanned-QR-url").val()+"c2s.php";
+            /*var scanned_QR_url = $("#scanned-QR-url").val()+"c2s.php";
 
-            alert("scanned_QR_url : "+scanned_QR_url);
+            alert("scanned_QR_url : "+scanned_QR_url);*/
+
+            efDB.webdb.getLastSyncDate();
+            efDB.webdb.syncLocalDB2Server();
 
           });
 
