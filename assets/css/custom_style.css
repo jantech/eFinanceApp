@@ -1,3 +1,12 @@
+body{
+	font-size: 14px !important;
+}
+
+.day{
+    cursor: pointer;
+    padding: 5px;
+}
+
 .checkbox{
 	cursor: pointer;
 }

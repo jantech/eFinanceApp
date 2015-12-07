@@ -12,6 +12,11 @@
     <link href="assets/css/flat-ui.min.css" rel="stylesheet">
     <link href="assets/css/custom_style.css" rel="stylesheet">
 
+    <link rel="stylesheet" type="text/css" href="assets/css/dataTables.bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="assets/css/responsive.bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="assets/css/typeahead_style.css">
+    <link rel="stylesheet" type="text/css" href="assets/css/bootstrap-datepicker.min.css">
+
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements. All other JS at the end of file. -->
     <!--[if lt IE 9]>
       <script src="assets/js/vendor/html5shiv.js"></script>
@@ -32,29 +37,36 @@
             </div>
             <div class="navbar-collapse collapse">
               <ul class="nav navbar-nav">
-                <li class="active"><a href="#">Home</a></li>
-                <li id="m_customers" class="cursor"><a>Customers</a></li>
-                <li><a href="#contact">Contact</a></li>
-                <li class="dropdown">
-                  <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <b class="caret"></b></a>
-                  <ul class="dropdown-menu">
-                    <li><a href="#">Action</a></li>
-                    <li><a href="#">Another action</a></li>
-                    <li><a href="#">Something else here</a></li>
-                    <li class="divider"></li>
-                    <li class="dropdown-header">Nav header</li>
-                    <li><a href="#">Separated link</a></li>
-                    <li><a href="#">One more separated link</a></li>
-                  </ul>
-                </li>
+                <!-- <li class="active"><a href="#">Dashboard</a></li> -->
+                <li id="m_dashboard" class="cursor" data-toggle="collapse" data-target=".navbar-collapse"><a href="#">Dashboard</a></li>
+                <li id="m_transactions_list" class="cursor" data-toggle="collapse" data-target=".navbar-collapse"><a href="#">Transactions</a></li>
+                <!-- <li id="m_payments_list" class="cursor" data-toggle="collapse" data-target=".navbar-collapse"><a href="#">Payments</a></li> -->
+                <li id="m_customers_list" class="cursor" data-toggle="collapse" data-target=".navbar-collapse"><a href="#">Customers</a></li>
+                <li id="m_sync" class="cursor"><a href="sync.html">Synchronization</a></li>
+                <li id="m_logout" class="cursor"><a href="#">Logout</a></li>
               </ul>
             </div><!--/.nav-collapse -->
           </div>
         </div>
 
-        <div class="jumbotron" id="centerDiv">
-          <p>To see the difference between static and fixed top navbars, just scroll.</p>
+        <br><br><br>
+
+        <div class="row">
+          <div class="col-sm-6">
+            <button id="m_customers" class="btn btn-embossed btn-info btn-wide"><i class="fui-user"></i> Customers</button>
+          </div>
+          <div class="col-sm-6">
+            <button id="m_transactions" class="btn btn-embossed btn-info btn-wide"><i class="fui-list-thumbnailed"></i> Transactions</button>
+          </div>
         </div>
+        <hr>
+
+        <div class="row">
+          <div class="col-sm-12">
+            <div id="render_page_content"></div>
+          </div>
+        </div>
+
 
     </div>
     <!-- /.container -->
@@ -80,6 +92,15 @@
     <script src="assets/js/vendor/video.js"></script>
     <script src="assets/js/flat-ui.min.js"></script>
     <script src="assets/js/efinance_app.js"></script>
+    <script src="assets/js/dashboard_app.js"></script>
+
+    <script type="text/javascript" language="javascript" src="assets/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" language="javascript" src="assets/js/dataTables.bootstrap.min.js"></script>
+    <script type="text/javascript" language="javascript" src="assets/js/dataTables.responsive.min.js"></script>
+    <script type="text/javascript" language="javascript" src="assets/js/responsive.bootstrap.min.js"></script>
+
+    <script type="text/javascript" language="javascript" src="assets/js/typeahead.bundle.min.js"></script>
+    <script type="text/javascript" language="javascript" src="assets/js/bootstrap-datepicker.min.js"></script>
 
     <script type="text/javascript">
 
@@ -100,12 +121,499 @@
                             '<input type="text" id="customer_mobileno" name="customer_mobileno" class="form-control" value="" >'+
                           '</div>'+
                           '<input type="hidden" id="customer_id" name="customer_id" class="form-control" value="0">'+
-                          '<button class="btn btn-primary" data-dismiss="modal" id="save_customer">Save</button>&nbsp;&nbsp;'+
-                          '<button class="btn btn-default" data-dismiss="modal" aria-hidden="true">Cancel</button>';
+                          '<button class="btn btn-embossed btn-primary" data-dismiss="modal" id="save_customer">Save</button>&nbsp;&nbsp;'+
+                          '<button class="btn btn-embossed btn-default" data-dismiss="modal" aria-hidden="true">Cancel</button>';
+
+      var trans_master_html = '<div class="form-group">'+
+                                '<label>Customer Name</label>'+
+                                '<div id="the-basics"><input class="form-control typeahead" type="text" id="customer_id" /></div>'+
+                              '</div>'+
+                              '<div class="form-group">'+
+                                '<label>Transaction Date</label>'+
+                                '<input type="text" id="trans_date" name="trans_date" class="form-control" value="" >'+
+                              '</div>'+
+                              '<div class="form-group">'+
+                                '<label>Amount</label>'+
+                                '<input type="text" id="amount" name="amount" class="form-control" value="" >'+
+                              '</div>'+
+                              '<div class="form-group">'+
+                                '<label>Status</label>'+
+                                '<select id="status" name="status" class="form-control">'+
+                                  '<option value="0">Open</option><option value="1">Closed</option>'+
+                                '</select>'+
+                              '</div>'+
+                              '<input type="hidden" id="trans_master_id" name="trans_master_id" class="form-control" value="0">'+
+                              '<button class="btn btn-embossed btn-primary" data-dismiss="modal" id="save_transaction">Save</button> &nbsp; '+
+                              '<button class="btn btn-embossed btn-default" data-dismiss="modal" aria-hidden="true">Cancel</button>';
+
+var trans_payment_html = '<div class="form-group">'+
+                            '<label>Customer Name</label>: <b id="lbl_customer_id"></b>'+
+                            '<input class="form-control" type="hidden" id="customer_id" />'+
+                          '</div>'+
+                          '<div class="form-group">'+
+                            '<label>Payment Date</label>'+
+                            '<input type="text" id="payment_date" name="payment_date" class="form-control" value="" >'+
+                          '</div>'+
+                          '<div class="form-group">'+
+                            '<label>Amount</label>'+
+                            '<input type="text" id="amount" name="amount" class="form-control" value="" >'+
+                          '</div>'+
+                          '<input type="hidden" id="trans_master_id" name="trans_master_id" class="form-control" value="0">'+
+                          '<input type="hidden" id="trans_payment_id" name="trans_payment_id" class="form-control" value="0">'+
+                          '<button class="btn btn-embossed btn-primary" data-dismiss="modal" id="save_payment">Save</button> &nbsp; '+
+                          '<button class="btn btn-embossed btn-default" data-dismiss="modal" aria-hidden="true">Cancel</button>';
+
+var customer_html = '<div class="form-group">'+
+                      '<label>Customer Name</label>'+
+                      '<input type="text" id="customer_name" name="customer_name" class="form-control" value="" >'+
+                    '</div>'+
+                    '<div class="form-group">'+
+                      '<label>Customer Number</label>'+
+                      '<input type="text" id="customer_number" name="customer_number" class="form-control" value="" >'+
+                    '</div>'+
+                    '<div class="form-group">'+
+                      '<label>Address</label>'+
+                      '<textarea rows="3" id="customer_address" name="customer_address" class="form-control"></textarea>'+
+                    '</div>'+
+                    '<div class="form-group">'+
+                      '<label>Contact No</label>'+
+                      '<input type="text" id="customer_mobileno" name="customer_mobileno" class="form-control" value="" >'+
+                    '</div>'+
+                    '<input type="hidden" id="customer_id" name="customer_id" class="form-control" value="0">'+
+                    '<button class="btn btn-embossed btn-primary" data-dismiss="modal" id="save_customer">Save</button> &nbsp; '+
+                    '<button class="btn btn-embossed btn-default" data-dismiss="modal" aria-hidden="true">Cancel</button>';
+
+
+var dashboard_html = '<div class="row demo-tiles">'+
+                        '<div class="col-sm-4">'+
+                          '<div class="tile">'+
+                            '<img src="assets/img/icons/svg/compas.svg" alt="Compas" class="tile-image big-illustration">'+
+                            '<h3 class="tile-title">Customers</h3><br>'+
+                            '<a class="btn btn-primary btn-large btn-block" href="#" id="c_summary">0</a>'+
+                          '</div>'+
+                        '</div>'+
+                        '<div class="col-sm-4">'+
+                          '<div class="tile">'+
+                            '<img src="assets/img/icons/svg/loop.svg" alt="Infinity-Loop" class="tile-image">'+
+                            '<h3 class="tile-title">Transactions</h3><br>'+
+                            '<a class="btn btn-primary btn-large btn-block" href="#" id="tm_summary">0</a>'+
+                          '</div>'+
+                        '</div>'+
+                        '<div class="col-sm-4">'+
+                          '<div class="tile">'+
+                            '<img src="assets/img/icons/svg/clipboard.svg" alt="Pensils" class="tile-image">'+
+                            '<h3 class="tile-title">Transactions Payments</h3><br>'+
+                            '<a class="btn btn-primary btn-large btn-block" href="#" id="tp_summary">0</a>'+
+                          '</div>'+
+                        '</div>'+
+                      '</div>';
+
+function checkCustomerInfo(cus_name)
+{
+    var cid = 0;
+
+    for(var i=0;i<customers_select.length;i++)
+    {
+        console.log(customers_select[i]);
+        var customer_info = customers_select[i].customer_info.toString();
+        if(customer_info.toUpperCase() === cus_name.toUpperCase())
+        {
+            console.log(" Equal ");
+            return customers_select[i].id;
+        }
+
+    }
+
+    return 0;
+}
 
       $(document).ready(function(){
 
-          $("#centerDiv").center();
+          //efDB.webdb.getLocalCustomerArray();
+
+          $(document).on("click", "#save_payment", function(){
+
+              var trans_master_id = $("#trans_master_id").val();
+              var trans_payment_id = $("#trans_payment_id").val();
+              var customer_id = $("#customer_id").val();
+              var payment_date = $("#payment_date").val();
+              var amount = $("#amount").val();
+              var status = "0";
+
+              var conveted_trans_date = getDBFormatedDate(payment_date);
+
+              if(customer_id!="0" && conveted_trans_date!="" && amount!="")
+              {
+                  var trans_data = { 
+                                      "id":trans_payment_id, 
+                                      "trans_master_id":trans_master_id, 
+                                      "customer_id":customer_id, 
+                                      "payment_date": conveted_trans_date, 
+                                      "amount": amount, 
+                                      "status": status,
+                                      "created": getCurrentDateDBFormat(),
+                                      "createdby": "TEST",
+                                      "modified": getCurrentDateDBFormat(),
+                                      "modifiedby": "TEST",
+                                  };
+
+                  if(trans_payment_id>0)
+                  {
+                      efDB.webdb.saveTransactionPayments(trans_data,"2");
+                  }else{
+                      efDB.webdb.saveTransactionPayments(trans_data,"1");
+                  }
+
+                  $("#m_transactions_list").click();
+
+                  alert("Saved Successfully!!!");
+
+              }else{
+                  alert("Please Fill Required Fields!!!!");
+              }
+              
+          });
+
+          $(document).on("click", "#save_transaction", function(){
+
+              var trans_master_id = $("#trans_master_id").val();
+              var customer_id = $("#customer_id").val();
+              var trans_date = $("#trans_date").val();
+              var amount = $("#amount").val();
+              var status = $("#status").val();
+
+              var new_customer_id = checkCustomerInfo(customer_id);
+              var conveted_trans_date = getDBFormatedDate(trans_date);
+                  
+              
+              if(new_customer_id!="0" && conveted_trans_date!="" && amount!="")
+              {
+                  var trans_data = { 
+                                      "id":trans_master_id, 
+                                      "customer_id":new_customer_id, 
+                                      "trans_date": conveted_trans_date, 
+                                      "amount": amount, 
+                                      "status": status,
+                                      "created": getCurrentDateDBFormat(),
+                                      "createdby": "TEST",
+                                      "modified": getCurrentDateDBFormat(),
+                                      "modifiedby": "TEST",
+                                  };
+                  if(trans_master_id>0)
+                  {
+                      efDB.webdb.saveTransactionMaster(trans_data,"2");
+                  }else{
+                      efDB.webdb.saveTransactionMaster(trans_data,"1");
+                  }
+
+                  $("#m_transactions_list").click();
+
+                  alert("Saved Successfully!!!");
+
+              }else{
+                  alert("Please Fill Required Fields!!!!");
+              }
+
+          });
+
+          $(document).on("click", "#save_customer", function(){
+
+              var customer_id = $("#customer_id").val();
+              var customer_name = $("#customer_name").val();
+              var customer_number = $("#customer_number").val();
+              var customer_address = $("#customer_address").val();
+              var customer_mobileno = $("#customer_mobileno").val();  
+              var status = "0";
+
+              if(customer_number!="0" && customer_name!="")
+              {
+                  var trans_data = { 
+                                      "id":customer_id, 
+                                      "customer_name":customer_name, 
+                                      "customer_number": customer_number, 
+                                      "mobile_no": customer_mobileno, 
+                                      "address": customer_address, 
+                                      "status": status,
+                                      "created": getCurrentDateDBFormat(),
+                                      "createdby": "TEST",
+                                      "modified": getCurrentDateDBFormat(),
+                                      "modifiedby": "TEST",
+                                  };
+                  if(customer_id>0)
+                  {
+                      efDB.webdb.saveCustomer(trans_data,"2");
+                  }else{
+                      efDB.webdb.saveCustomer(trans_data,"1");
+                  }
+
+                  $("#m_customers_list").click();
+
+                  alert("Saved Successfully!!!");
+
+              }else{
+                  alert("Please Fill Required Fields!!!!");
+              }
+
+          });
+
+          $(document).on("click", ".delPayment", function(){
+
+              var tpid = $(this).attr("tpid");
+              
+              var res = confirm("Are you sure do you realy want to delete this?");
+              if(res == true)
+              {
+                  $("#m_transactions_list").click();
+                  efDB.webdb.deleteTransactionPayments(tpid);
+              }
+
+          });
+
+          $(document).on("click", ".delCustomer", function(){
+
+              var cid = $(this).attr("cid");
+              
+              var res = confirm("Are you sure do you realy want to delete this?");
+              if(res == true)
+              {
+                  $("#m_customers_list").click();
+                  efDB.webdb.deleteCustomer(cid);
+              }
+
+          });
+
+          $(document).on("click", ".editPayment", function(){
+
+            var tpid = $(this).attr("tpid");
+            var tmid = $(this).attr("tmid");
+            var cid = $(this).attr("cid");
+            
+            var trans_payment_id = tpid;
+            var trans_master_id = tmid;
+            var customer_id = "";
+            var trans_date = "";
+            var amount = "";
+            var status = "0";
+
+            var tm_arr = trans_payment_master[0].tabBody;
+
+            for(var i=0;i<tm_arr.length;i++)
+            {
+                if(tm_arr[i].id == trans_payment_id)
+                {
+                  trans_payment_id = tm_arr[i].id;
+                  trans_master_id = tm_arr[i].tp_trans_master_id;
+                  customer_id = tm_arr[i].tp_customer_id;
+                  payment_date = getDisplayFormatedDate(tm_arr[i].payment_date);
+                  amount = tm_arr[i].amount;
+                }else{
+                  console.log("i : "+i);
+                }
+            }
+
+            $("#myFrmModalLabel").html("Transaction Payment Details");
+            $('#myFrmModal').removeData();
+            $("#content").html('<div class="loading"><img src="assets/img/loading.gif" /></div>');
+            $('#myFrmModal').modal('show');
+
+            $("#content").html(trans_payment_html);
+
+            $("#content #payment_date").datepicker({format: 'dd-mm-yyyy', autoclose: true });
+
+            $("#trans_payment_id").val(trans_payment_id);
+            $("#trans_master_id").val(trans_master_id);
+            $("#payment_date").val(payment_date);
+            $("#amount").val(amount);
+            //$("#lbl_customer_id").text(customer_id);
+            $("#customer_id").val(cid);
+
+
+          });
+
+          $(document).on("click", ".paynow", function(){
+
+            var tmid = $(this).attr("tmid");
+            var cid = $(this).attr("cid");
+            
+            var trans_master_id = tmid;
+            var customer_id = "";
+            var trans_date = "";
+            var amount = "";
+            var status = "0";
+
+            var tm_arr = trans_master[0].tabBody;
+
+            for(var i=0;i<tm_arr.length;i++)
+            {
+                if(tm_arr[i].tmid == tmid)
+                {
+                  trans_master_id = tm_arr[i].tmid;
+                  customer_id = tm_arr[i].customer_name+" - "+tm_arr[i].customer_number;
+                  trans_date = getDisplayFormatedDate(tm_arr[i].trans_date);
+                  amount = tm_arr[i].total_amount;
+                }
+            }
+
+            $("#myFrmModalLabel").html("Transaction Payment Details");
+            $('#myFrmModal').removeData();
+            $("#content").html('<div class="loading"><img src="assets/img/loading.gif" /></div>');
+            $('#myFrmModal').modal('show');
+
+            $("#content").html(trans_payment_html);
+
+            $("#content #payment_date").datepicker({format: 'dd-mm-yyyy', autoclose: true });
+
+            $("#trans_master_id").val(trans_master_id);
+            $("#lbl_customer_id").text(customer_id);
+            $("#customer_id").val(cid);
+
+
+          });
+
+
+          $(document).on("click", ".editTrans", function(){
+
+            var tmid = $(this).attr("tmid");
+            var cid = $(this).attr("cid");
+            
+            var trans_master_id = tmid;
+            var customer_id = "";
+            var trans_date = "";
+            var amount = "";
+            var status = "0";
+
+            var tm_arr = trans_master[0].tabBody;
+
+            for(var i=0;i<tm_arr.length;i++)
+            {
+                if(tm_arr[i].tmid == tmid)
+                {
+                  trans_master_id = tm_arr[i].tmid;
+                  customer_id = tm_arr[i].customer_name+" - "+tm_arr[i].customer_number;
+                  trans_date = getDisplayFormatedDate(tm_arr[i].trans_date);
+                  amount = tm_arr[i].total_amount;
+                }
+            }
+
+            $("#myFrmModalLabel").html("Transaction Details");
+            $('#myFrmModal').removeData();
+            $("#content").html('<div class="loading"><img src="assets/img/loading.gif" /></div>');
+            $('#myFrmModal').modal('show');
+
+            $("#content").html(trans_master_html);
+
+            $("#content #trans_date").datepicker({format: 'dd-mm-yyyy', autoclose: true });
+
+            $('#the-basics .typeahead').typeahead({
+                hint: true,
+                highlight: true,
+                minLength: 1
+              },
+              {
+                name: 'customer_id',
+                source: substringMatcher(customers_select_arr)
+            });
+
+            $("#trans_master_id").val(trans_master_id);
+            $("#customer_id").val(customer_id);
+            $("#customer_id").val(cid);
+            $("#trans_date").val(trans_date);
+            $("#content #amount").val(amount);
+            $("#content #status").val(status);
+          
+          });
+
+          $(document).on("click", ".editCustomer", function(){
+
+            var cid = $(this).attr("cid");
+            
+            var customer_id = cid;
+            var customer_number = "";
+            var customer_name = "";
+            var address = "";
+            var mobile_no = "";
+            var status = "0";
+
+            var tm_arr = customers_master[0].tabBody;
+
+            for(var i=0;i<tm_arr.length;i++)
+            {
+                if(tm_arr[i].id == customer_id)
+                {
+                  customer_id = tm_arr[i].id;
+                  customer_number = tm_arr[i].customer_number;
+                  customer_name = tm_arr[i].customer_name;
+                  address = tm_arr[i].address;
+                  mobile_no = tm_arr[i].mobile_no;
+                }
+            }
+
+            $("#myFrmModalLabel").html("Customer Details");
+            $('#myFrmModal').removeData();
+            $("#content").html('<div class="loading"><img src="assets/img/loading.gif" /></div>');
+            $('#myFrmModal').modal('show');
+
+            $("#content").html(customer_html);
+
+            $("#customer_id").val(customer_id);
+            $("#customer_number").val(customer_number);
+            $("#customer_name").val(customer_name);
+            $("#customer_address").val(address);
+            $("#customer_mobileno").val(mobile_no);
+            
+          
+          });
+
+          $(document).on("click", "#m_transactions", function(){
+
+              $("#myFrmModalLabel").html("Transaction Details");
+              $('#myFrmModal').removeData();
+              $("#content").html('<div class="loading"><img src="assets/img/loading.gif" /></div>');
+              $('#myFrmModal').modal('show');
+
+              $("#content").html(trans_master_html);
+
+              $("#content #trans_date").datepicker({format: 'dd-mm-yyyy', autoclose: true });
+
+              $('#the-basics .typeahead').typeahead({
+                hint: true,
+                highlight: true,
+                minLength: 1
+              },
+              {
+                name: 'customer_id',
+                source: substringMatcher(customers_select_arr)
+              });
+
+          });
+
+
+          $(document).on("click", ".viewPayments", function(){
+
+              var tmid = $(this).attr("tmid");
+              var cid = $(this).attr("cid");
+            
+              console.log("viewPayments");
+              efDB.webdb.getTransactionPaymentsArray(tmid, cid);
+
+          });
+
+          $(document).on("click", "#m_transactions_list", function(){
+          });
+
+          $(document).on("click", "#m_transactions_list", function(){
+
+              console.log("m_transactions_list");
+              efDB.webdb.getTransactionMasterArray();
+
+          });
+
+          $(document).on("click", "#m_dashboard", function(){
+
+              console.log("m_dashboard");
+              efDB.webdb.getDasboardSummaryArray();
+
+          });
 
           $(document).on("click", "#m_customers", function(){
 
@@ -118,40 +626,29 @@
 
           });
 
-          $(document).on("click", "#save_customer", function(){
-
-                var customer_id = $("#customer_id").val();
-                var customer_name = $("#customer_name").val();
-                var customer_number = $("#customer_number").val();
-                var customer_address = $("#customer_address").val();
-                var customer_mobileno = $("#customer_mobileno").val();
-                
-                var data = {
-                    type:"save_customer",
-                    customer_id: customer_id,
-                    customer_number: customer_number,
-                    customer_name: customer_name,
-                    customer_address: customer_address,
-                    customer_mobileno: customer_mobileno
-                };
-
-                $.ajax({
-                    url:"customer_actions.php",
-                    type:"POST",
-                    data:data,
-                    success:function(output){
-
-                    },
-                    error:function(err){
-
-                    }
-                });
-
-          });
-          // Checkboxes and Radio buttons
-          $('[data-toggle="checkbox"]').radiocheck();
-
       });
+
+      var substringMatcher = function(strs) {
+        return function findMatches(q, cb) {
+          var matches, substringRegex;
+
+          // an array that will be populated with substring matches
+          matches = [];
+
+          // regex used to determine if a string contains the substring `q`
+          substrRegex = new RegExp(q, 'i');
+
+          // iterate through the pool of strings and for any string that
+          // contains the substring `q`, add it to the `matches` array
+          $.each(strs, function(i, str) {
+            if (substrRegex.test(str)) {
+              matches.push(str);
+            }
+          });
+
+          cb(matches);
+        };
+      };
 
     </script>
 

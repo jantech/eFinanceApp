@@ -22,6 +22,27 @@
 
     <div class="container" id="centerDiv">
 
+              <!-- Static navbar -->
+        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+              </button>
+              <a class="navbar-brand" href="#">eFinance</a>
+            </div>
+            <div class="navbar-collapse collapse">
+              <ul class="nav navbar-nav">
+                <li id="m_dashboard" class="cursor" data-toggle="collapse" data-target=".navbar-collapse"><a href="dashboard.html">Dashboard</a></li>
+                <li id="m_sync" class="cursor"><a href="sync.html">Synchronization</a></li>
+                <li id="m_logout" class="cursor"><a href="#">Logout</a></li>
+              </ul>
+            </div><!--/.nav-collapse -->
+          </div>
+        </div>
+
+        <br><br><br>
+
           <div id="QR-Code">
             <div class="panel panel-primary">
                 <div class="panel-heading">
@@ -76,8 +97,8 @@
                                 <p id="scanned-QR"></p>
                                 <input type="hidden" name="scanned-QR-url" id="scanned-QR-url">
                   
-                  <input type="button" name="btn_proceed_s2c" id="btn_proceed_s2c" value="Proceed Server2Client Sync" class="btn btn-success btn-lg btn-block" /> 
-                  <input type="button" name="btn_proceed_c2s" id="btn_proceed_c2s" value="Proceed Client2Server Sync" class="btn btn-success btn-lg btn-block" /> 
+    <input type="button" name="btn_proceed_s2c" id="btn_proceed_s2c" value="Proceed Server2Client Sync" class="btn btn-success btn-sm btn-embossed btn-block" /> 
+    <input type="button" name="btn_proceed_c2s" id="btn_proceed_c2s" value="Proceed Client2Server Sync" class="btn btn-success btn-sm btn-embossed btn-block" /> 
 
                             </div>
                         </div>
@@ -87,8 +108,21 @@
               </div>
 
             </div>
-        </div>
+          </div>
 
+          <div align="center">
+          <br>
+          <h3>OR</h3>
+
+          <div class="row">
+            <div class="col-sm-12">
+              <input type="text" id="manual_url" name="manual_url" class="form-control" placeholder="Enter URL"><br>
+              <input type="button" id="manual_s2c" name="manual_s2c" class="btn btn-sm btn-info btn-embossed btn-block" value="Manual Server2Client"> 
+              <input type="button" id="manual_c2s" name="manual_c2s" class="btn btn-sm btn-info btn-embossed btn-block" value="Manual Client2Server"> 
+            </div>
+          </div>
+          </div>
+          <br><br>
     </div>
     <!-- /.container -->
 
@@ -107,7 +141,7 @@
 
       $(document).ready(function(){
 
-          $("#centerDiv").center();
+          //$("#centerDiv").center();
 
           // Checkboxes and Radio buttons
           $('[data-toggle="checkbox"]').radiocheck();
@@ -115,26 +149,65 @@
           //$('#btn_proceed_s2c').prop('disabled', true);
           //$('#btn_proceed_c2s').prop('disabled', true);
 
+          $(document).on("click", "#manual_s2c", function(){
+
+              var manual_url = $("#manual_url").val();
+
+              var isValidURL = learnRegExp(manual_url);
+              console.log(isValidURL);
+
+              if(manual_url!="" && isValidURL==true)
+              {                
+                  var data = { type: "sync", lastsync: getCurrentDateDBFormat() };
+
+                  manual_url = manual_url +"s2c.php";
+
+                  $.ajax({
+                      crossDomain: true,
+                      type: "POST",
+                      contentType: "application/json; charset=utf-8",
+                      async:false,
+                      url: manual_url,
+                      data: data,
+                      dataType: "jsonp",                
+                      jsonpCallback: "fnServer2ClientResult"
+                  });
+              }else{
+                alert("URL is Empty OR Not a Valid URL!.. Try Again Later!!!");
+              }
+          
+          });
+
           $(document).on("click", "#btn_proceed_s2c", function(){
 
             var http = location.protocol;
             var slashes = http.concat("//");
             var host = slashes.concat(window.location.hostname);
 
-            var newurl = host+"/eFinance/ws/s2c.php";
+            var scanned_QR_url = $("#scanned-QR-url").val();
+            //var newurl = host+"/eFinance/ws/s2c.php";
 
-            var data = { type: "sync", lastsync: "2015-12-02 17:40:01" };
+            if(scanned_QR_url!="")
+            {
+                scanned_QR_url = $("#scanned-QR-url").val()+"s2c.php";
 
-            $.ajax({
-                crossDomain: true,
-                type: "POST",
-                contentType: "application/json; charset=utf-8",
-                async:false,
-                url: newurl,
-                data: data,
-                dataType: "jsonp",                
-                jsonpCallback: "fnServer2ClientResult"
-            });
+                var data = { type: "sync", lastsync: getCurrentDateDBFormat() };
+
+                $.ajax({
+                    crossDomain: true,
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    async:false,
+                    url: scanned_QR_url,
+                    data: data,
+                    dataType: "jsonp",                
+                    jsonpCallback: "fnServer2ClientResult"
+                });
+
+            }else{
+              alert("URL is Empty!... Try Again Later!!!");
+            }
+            
 
             //callAjax(data);
             
@@ -145,16 +218,48 @@
 
           $(document).on("click", "#btn_proceed_c2s", function(){
 
-            /*var scanned_QR_url = $("#scanned-QR-url").val()+"c2s.php";
+            var scanned_QR_url = $("#scanned-QR-url").val();
 
-            alert("scanned_QR_url : "+scanned_QR_url);*/
+            //alert("scanned_QR_url : "+scanned_QR_url);
 
-            efDB.webdb.getLastSyncDate();
-            efDB.webdb.syncLocalDB2Server();
+            if(scanned_QR_url!="")
+            {
+                scanned_QR_url = $("#scanned-QR-url").val()+"c2s.php";
+
+                efDB.webdb.getLastSyncDate();
+                efDB.webdb.syncLocalDB2Server(scanned_QR_url);
+            }else{
+              alert("URL is Empty!... Try Again Later!!!");
+            }
+
+          });
+
+          $(document).on("click", "#manual_c2s", function(){
+
+              var manual_url = $("#manual_url").val();
+
+              var isValidURL = learnRegExp(manual_url);
+
+              if(manual_url!="" && isValidURL==true)
+              {
+
+                manual_url = manual_url +"s2c.php";
+
+                efDB.webdb.getLastSyncDate();
+                efDB.webdb.syncLocalDB2Server(manual_url);
+                
+              }else{
+                alert("URL is Empty OR Not a Valid URL!!!. Try Again Later!!!");
+              }
 
           });
 
       });
+
+      function learnRegExp(s) {
+            var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
+            return regexp.test(s);
+      }
 
     </script>
 
