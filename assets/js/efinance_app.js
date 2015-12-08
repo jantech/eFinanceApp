@@ -1,4 +1,7 @@
 // GenFunctions
+
+document.addEventListener("deviceready", onDeviceReady, false);
+
 function request_get_js(param) {
 	return htmlEntities(addSlashes(param.trim()));
 }
@@ -1116,7 +1119,9 @@ efDB.webdb.rememberLocalDB = function(login_details) {
 
 }
 
-function onDeviceReady() {
+function init() {
+
+  alert("init function called!!!");
 
   if (window.openDatabase) {
 
@@ -1138,8 +1143,11 @@ function onDeviceReady() {
 
 }
 
-//init();
-document.addEventListener("deviceready", onDeviceReady, false);
+function onDeviceReady()
+{
+  alert("eFinance App is Ready");
+  init();
+}
 
 Object.size = function(obj) {
     var size = 0, key;
