@@ -76,6 +76,7 @@ efDB.webdb.db = null;
 efDB.webdb.openDB = function() {
     var dbSize = 5 * 1024 * 1024; // 5MB
     efDB.webdb.db = openDatabase("eFinance", "1.0", "eFinance App", dbSize);
+    alert("DB created!!!");
 }
 
 efDB.webdb.onError = function(tx, e) {
@@ -107,6 +108,8 @@ efDB.webdb.createTables = function() {
     tx.executeSql("CREATE TABLE IF NOT EXISTS tbl_users (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, fullname TEXT, username TEXT, password TEXT, status INTEGER, usertype INTEGER, created DATETIME, createdby TEXT, modified DATETIME, modifiedby TEXT)", []);
     tx.executeSql("CREATE TABLE IF NOT EXISTS tbl_sync (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, last_sync_date DATETIME)", []);
     tx.executeSql("CREATE TABLE IF NOT EXISTS tbl_remember (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, username TEXT, password TEXT)", []);
+    
+    alert("TABLE created!!!");
 
   });
 }
@@ -1159,11 +1162,12 @@ Object.size = function(obj) {
 
 function fnServer2ClientResult(output)
 {
-    console.log("fnServer2ClientResult");
+    alert("fnServer2ClientResult");
     console.log(output);
 
     var size = Object.size(output);
-    //console.log("Result Count : "+size);
+    alert("Result Count : "+size);
+
 
     if(size>0){
 
@@ -1186,6 +1190,8 @@ function fnServer2ClientResult(output)
 
         alert("Server2Client Synchronization Done! Now login to continue your Works!!!");
 
+    }else{
+      alert("NO RECORDS FOUND!!!");
     }
 
 }
