@@ -1116,7 +1116,7 @@ efDB.webdb.rememberLocalDB = function(login_details) {
 
 }
 
-function init() {
+function onDeviceReady() {
 
   if (window.openDatabase) {
 
@@ -1138,7 +1138,8 @@ function init() {
 
 }
 
-init();
+//init();
+document.addEventListener("deviceready", onDeviceReady, false);
 
 Object.size = function(obj) {
     var size = 0, key;
