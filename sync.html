@@ -162,11 +162,12 @@
 
               if(manual_url!="" && isValidURL==true)
               {                
-                  //var data = { type: "sync", lastsync: getCurrentDateDBFormat() };
+                  var data = { type: "sync", lastsync: getCurrentDateDBFormat() };
 
-                  manual_url = manual_url +"s2c.php?type=sync&lastsync="+getCurrentDateDBFormat();
+                  manual_url = manual_url +"s2c.php";
+                  //manual_url = manual_url +"s2c.php?type=sync&lastsync="+getCurrentDateDBFormat();
 
-                  alert("manual_url : "+manual_url);
+                  alert("manual_url v1 : "+manual_url);
                   /*$.get(manual_url, function (data) {
                       fnServer2ClientResult(data);
                   });*/
@@ -178,10 +179,10 @@
                       async:false,
                       url: manual_url,
                       data: data,
-                      dataType: "jsonp",                
-                      jsonpCallback: "fnServer2ClientResult",
+                      dataType: "json",
                       success: function(data, status){
                         alert("Data Loaded");
+                        fnServer2ClientResult(data);
                       },
                       error: function(){
                         alert("Error Loading Data");
