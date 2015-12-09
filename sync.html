@@ -184,9 +184,11 @@
                         alert("Data Loaded");
                         fnServer2ClientResult(data);
                       },
-                      error: function(){
-                        alert("Error Loading Data");
-                      }
+                      error: function(xhr, status, error) {
+                          alert("AJAX CALL FAILED!!!");
+                          alert(xhr.responseText);
+                          alert(error);
+                       }
                   });
                   
               }else{
