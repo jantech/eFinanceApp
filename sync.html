@@ -167,12 +167,11 @@
                   manual_url = manual_url +"s2c.php?type=sync&lastsync="+getCurrentDateDBFormat();
 
                   alert("manual_url : "+manual_url);
-
-                  $.get(manual_url, function (data) {
+                  /*$.get(manual_url, function (data) {
                       fnServer2ClientResult(data);
-                  });
+                  });*/
                   
-                  /*$.ajax({
+                  $.ajax({
                       crossDomain: true,
                       type: "POST",
                       contentType: "application/json; charset=utf-8",
@@ -180,9 +179,15 @@
                       url: manual_url,
                       data: data,
                       dataType: "jsonp",                
-                      jsonpCallback: "fnServer2ClientResult"
+                      jsonpCallback: "fnServer2ClientResult",
+                      success: function(data, status){
+                        alert("Data Loaded");
+                      },
+                      error: function(){
+                        alert("Error Loading Data");
+                      }
                   });
-                  */
+                  
               }else{
                 alert("URL is Empty OR Not a Valid URL!.. Try Again Later!!!");
               }
